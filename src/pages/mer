@@ -1,0 +1,208 @@
+import { useState } from "react";
+import FileUploader from "../components/FileUploader";
+import PDFPreview from "../components/PDFPreview";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+
+export default function Merge() {
+
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Remove file
+  const removeFile = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Drag reorder
+  const handleDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(files);
+    const [moved] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, moved);
+    setFiles(items);
+  };
+
+  // Merge
+  const handleMerge = async () => {
+    if (files.length < 2) {
+      alert("Select at least 2 PDFs");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      files.forEach(f => formData.append("files", f));
+
+      const res = await axios.post(
+        "http://localhost:5000/api/pdf/merge",
+        formData,
+        { responseType: "blob" }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "merged.pdf";
+      a.click();
+
+    } catch (err) {
+      alert("Merge failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Total size
+  const totalSize = (files.reduce((acc, f) => acc + f.size, 0) / 1024 / 1024).toFixed(2);
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-white pb-32">
+
+      {/* NAVBAR */}
+      <div className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+          <Link to="/" className="text-2xl font-bold text-blue-400">
+            PDF Ki Bari 🔧
+          </Link>
+
+          <Link to="/" className="text-sm text-gray-300 hover:text-white">
+            Home
+          </Link>
+        </div>
+      </div>
+
+      {/* HERO */}
+      <div className="text-center mt-12 px-4">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-blue-400">
+          Merge PDF Files
+        </h1>
+
+        <p className="mt-3 text-gray-400 max-w-2xl mx-auto">
+          Combine multiple PDF documents into one single file.
+          Arrange files in any order by dragging them.
+        </p>
+      </div>
+
+      {/* UPLOAD AREA */}
+      <div className="max-w-5xl mx-auto mt-12 px-4">
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-8 shadow-xl">
+
+          <FileUploader setFiles={setFiles} />
+
+          {files.length > 0 && (
+            <div className="mt-6 text-center text-sm text-gray-300">
+              {files.length} file(s) selected • {totalSize} MB total
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* EMPTY STATE */}
+      {files.length === 0 && (
+        <div className="text-center mt-16 text-gray-500">
+          <div className="text-6xl mb-4">📂</div>
+          <p>Upload PDFs to start merging</p>
+        </div>
+      )}
+
+      {/* FILE PREVIEW */}
+      {files.length > 0 && (
+        <div className="max-w-7xl mx-auto mt-14 px-6">
+
+          <h3 className="text-center mb-8 text-gray-300">
+            Drag and drop files to change merge order
+          </h3>
+
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="pdfs" direction="horizontal">
+              {(provided) => (
+                <div
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                  className="flex flex-wrap justify-center gap-8"
+                >
+                  {files.map((file, index) => (
+                    <Draggable
+                      key={file.name + index}
+                      draggableId={file.name + index}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="bg-white rounded-2xl p-4 w-[180px] text-black shadow-2xl hover:scale-105 transition relative"
+                        >
+                          {/* order badge */}
+                          <div className="absolute -top-3 -left-3 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+
+                          <PDFPreview file={file} />
+
+                          <p className="text-xs mt-3 text-center break-words font-medium">
+                            {file.name}
+                          </p>
+
+                          <p className="text-[11px] text-gray-500 text-center mt-1">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+
+                          <button
+                            onClick={() => removeFile(index)}
+                            className="mt-3 w-full bg-red-100 text-red-600 py-1 rounded-lg hover:bg-red-200 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+      )}
+
+      {/* ACTION BAR */}
+      {files.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-white/10 py-5 flex justify-center">
+
+          <button
+            disabled={files.length < 2 || loading}
+            onClick={handleMerge}
+            className={`px-12 py-4 rounded-2xl text-lg font-bold transition-all shadow-xl
+            ${files.length < 2
+                ? "bg-gray-600 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 hover:scale-105"}
+            `}
+          >
+            {loading ? "Merging... Please wait" : `Merge ${files.length} PDFs`}
+          </button>
+
+        </div>
+      )}
+
+      {/* LOADING OVERLAY */}
+      {loading && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-slate-800 p-8 rounded-2xl text-center shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-400 border-t-transparent mx-auto mb-4"></div>
+            <p className="text-lg font-semibold">Merging your PDFs...</p>
+            <p className="text-sm text-gray-400 mt-1">Do not close the page</p>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
