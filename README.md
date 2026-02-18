@@ -1,16 +1,170 @@
-# React + Vite
+# 📄 PDF Ki Bari — Online PDF Toolkit
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Preview](https://pdfkibari.vercel.app/preview.png)
 
-Currently, two official plugins are available:
+**PDF Ki Bari** is a full-stack web application that provides all essential PDF utilities in one place.
+It allows users to merge, split, compress, scan, and convert PDFs directly in the browser — no software installation required.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🌐 **Live Website:** https://pdfkibari.vercel.app
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+### 📑 PDF Tools
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* Merge multiple PDFs into one file
+* Split PDF into individual pages (ZIP download)
+* Compress PDF with selectable compression level
+* Convert PDF → Images (JPG pages)
+* Convert Images → PDF
+
+### 📷 Smart Scanner (Like Office Lens)
+
+* Open mobile camera in browser
+* Capture documents
+* Auto clean background
+* Black & white document enhancement
+* Direct PDF generation
+
+### 👁 Preview System
+
+* First-page thumbnail preview before operations
+* Drag & drop reorder before merging
+* Mobile responsive UI
+
+---
+
+## 🧰 Tech Stack
+
+### Frontend
+
+* React (Vite)
+* Tailwind CSS
+* React Router
+* Axios
+* PDF.js (Preview rendering)
+* OpenCV.js (Document cleaning)
+* Drag & Drop (@hello-pangea/dnd)
+
+### Backend
+
+* Node.js
+* Express.js
+* Multer (file upload)
+* pdf-lib
+* Archiver (ZIP generation)
+* Ghostscript (compression & image extraction)
+
+### Deployment
+
+* Frontend: Vercel
+* Backend: Render
+
+---
+
+## 📁 Project Structure
+
+```
+pdfkibari-frontend
+│
+├── src
+│   ├── components
+│   │   ├── FileUploader.jsx
+│   │   └── PDFPreview.jsx
+│   │
+│   ├── pages
+│   │   ├── Home.jsx
+│   │   ├── Merge.jsx
+│   │   ├── Split.jsx
+│   │   ├── Compress.jsx
+│   │   ├── ImagesToPDF.jsx
+│   │   ├── PdfToImages.jsx
+│   │   └── Scanner.jsx
+│   │
+│   └── App.jsx
+│
+└── public
+    └── pdf.worker.min.js
+```
+
+---
+
+## ⚙️ Installation (Local Setup)
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/<your-username>/pdfkibari-frontend.git
+cd pdfkibari-frontend
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
+npm install
+```
+
+### 3️⃣ Start Development Server
+
+```bash
+npm run dev
+```
+
+Open:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔌 Backend API
+
+The frontend communicates with the deployed backend API:
+
+```
+https://pdfkibari-api.onrender.com
+```
+
+---
+
+## 📱 Mobile Usage (Scanner)
+
+To use the document scanner:
+
+1. Connect phone and laptop to the same WiFi
+2. Run frontend locally
+3. Open in phone browser:
+
+```
+http://YOUR-PC-IP:5173
+```
+
+Camera permission will be requested automatically.
+
+---
+
+## 🚀 Future Improvements
+
+* Page selection before merging
+* Rotate pages
+* Add watermark
+* PDF password protection
+* OCR text extraction
+
+---
+
+## 👨‍💻 Author
+
+**Aayush Sharma**
+Computer Science Student & Full-Stack Developer
+
+* Portfolio: https://pdfkibari.vercel.app
+* GitHub: https://github.com/aayushsh2003
+
+---
+
+## 📜 License
+
+This project is open source and available under the MIT License.
